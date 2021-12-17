@@ -37,18 +37,46 @@ app.post("/account", (request, response) => {
         cpf,
         name,
         id: uuidv4(),
-        statement:[]
+        statement:[],
     });
     return response.status(201).send();
 })
-
-//app.use(verifyIfExistAccountCPF)
-//Verifica sempre com  midleware
 
 app.get("/statement", verifyIfExistAccountCPF, (request, response) => {
     const { customer } = request;
     //Verifica somente nesta rota
     return response.json(customer.statement);
+})
+
+app.post("/deposit", verifyIfExistAccountCPF, (request, response) => {
+    const {description,amount} = request.body;
+    
+    const { customer } = request;
+    
+    const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credit",
+    }
+    customer.statement.push(statementOperation);
+
+    return response.status(201).send();
+})
+
+app.get("/statement/date", verifyIfExistAccountCPF, (request, response) => {
+    const { customer } = request;
+    const {date} = request.query;
+    
+    const dateFormat = new Date(date + " 00:00");
+    
+    const statement = customer.statement.filter(
+    (statement) => 
+    statement.created_at.toDateString() === 
+    new Date(dateFormat).toDateString()
+    );
+  
+    return response.json(statement);
 })
 
 app.listen(3000);
