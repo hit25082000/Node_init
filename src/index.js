@@ -1,74 +1,36 @@
 const express = require("express");
+const { v4: uuidv4 } = require("uuid")
 
 const app = express();
 
-app.use(express.json()); 
+app.use(express.json());
+
+const customers = [];
+//Zera toda x que o codigo é reiniciado (nodemon reinicia o codigo sempre que ha um alteração)
 
 /*
-GET - Buscar informação dentro do servidor
-POST - Inserir uma informação no servidor
-PUT - Alterar uma informação no servidor
-PATCH - Alterar uma informação especifica no servidor
-DELETE - Deletar uma informação no servidor
+    cpf - string
+    name - string
+    id - uuid
+    statement [] 
 */
+app.post("/account", (request, response) => {
+    const { cpf , name } = request.body;
 
-/*
-    Tipos de parametros
-
-    Route Params => identificar um recurso e editar/deletar/buscar
-    Query Params => Paginação / Filtro 
-    Body  Params => Os objetos inserção/alterção (json)
-
-*/
-
-app.get("/courses", (request, response) => {
-    const {page} = request.query;
-    console.log(page);
-    return response.json([
-        "curso1",
-        "curso2",
-        "curso3",        
-    ])
+    const customersValidation = customers.some(
+        (customer) => customer.cpf === cpf
+    );
+    if(customersValidation){
+        return response.status(400).json({error: "Customer already exists!"});
+    }    
+    
+    customers.push({
+        cpf,
+        name,
+        id: uuidv4(),
+        statement:[]
+    });
+    return response.status(201).send();
 })
-
-app.post("/courses", (request, response) => {
-    const body = request.body;
-    console.log(body);
-    return response.json([
-        "curso1",
-        "curso2",
-        "curso3",        
-        "curso4",        
-    ])
-})
-
-app.put("/courses/:id", (request, response) => {
-    const { id } = request.params;
-    console.log(id)
-    return response.json([
-        "curso6",
-        "curso2",
-        "curso3",        
-        "curso4",        
-    ])
-})
-
-app.patch("/courses/:id", (request, response) => {
-    return response.json([
-        "curso6",
-        "curso7",
-        "curso3",        
-        "curso4"        
-    ])
-})
-
-app.delete("/courses/:id", (request, response) => {
-    return response.json([
-        "curso6",
-        "curso2",             
-        "curso4",        
-    ])
-})
-
 
 app.listen(3000);
