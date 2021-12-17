@@ -17,7 +17,7 @@ const customers = [];
 app.post("/account", (request, response) => {
     const { cpf , name } = request.body;
 
-    const customersValidation = customers.some(
+    const customersValidation = customers.some(//Some retorna booleano verificando a veracidade da função
         (customer) => customer.cpf === cpf
     );
     if(customersValidation){
@@ -31,6 +31,19 @@ app.post("/account", (request, response) => {
         statement:[]
     });
     return response.status(201).send();
+})
+
+app.get("/statement", (request, response) => {
+    const { cpf } = request.headers;
+
+    const customer = customers.find(customer => customer.cpf === cpf);
+    //Find retorna o dado se existente completo
+    if(!customer) {
+        return response.status(400).json({error:"Customer not found"})
+    }
+
+    return response.json(customer.statement);
+
 })
 
 app.listen(3000);
