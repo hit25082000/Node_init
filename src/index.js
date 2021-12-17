@@ -6,9 +6,7 @@ const app = express();
 app.use(express.json());
 
 const customers = [];
-//Zera toda x que o codigo é reiniciado (nodemon reinicia o codigo sempre que ha um alteração)
 
-//Midleware
 function verifyIfExistAccountCPF(request, response, next) {
     const { cpf } = request.headers;
 
@@ -22,7 +20,8 @@ function verifyIfExistAccountCPF(request, response, next) {
 
     return next();
 
-}
+};
+
 app.post("/account", (request, response) => {
     const { cpf , name } = request.body;
 
@@ -78,5 +77,20 @@ app.get("/statement/date", verifyIfExistAccountCPF, (request, response) => {
   
     return response.json(statement);
 })
+
+app.put("/account", verifyIfExistAccountCPF, (request, response) => {
+    const { name } = request.body;
+    const { customer } = request;
+    
+    customer.name = name;
+    
+    return response.status(201).send();
+})
+
+app.get("/account", verifyIfExistAccountCPF, (request, response) => {
+    const {customer} = request;
+    
+    return response.json(customer);
+});
 
 app.listen(3000);
